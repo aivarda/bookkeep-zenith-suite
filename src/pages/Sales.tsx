@@ -61,7 +61,7 @@ const Sales = () => {
                 ? "text-gray-500" 
                 : "text-books-yellow"
           }>
-            {status}
+            {String(status)}
           </span>
         );
       },

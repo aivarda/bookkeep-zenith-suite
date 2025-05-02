@@ -54,7 +54,7 @@ const Purchases = () => {
                 ? "text-books-yellow" 
                 : "text-books-red"
           }>
-            {status}
+            {String(status)}
           </span>
         );
       },

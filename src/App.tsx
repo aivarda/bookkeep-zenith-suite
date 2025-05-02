@@ -18,6 +18,11 @@ import Documents from "./pages/Documents";
 import More from "./pages/More";
 import NotFound from "./pages/NotFound";
 
+// New routes for submenu items
+import ChartOfAccounts from "./pages/accountant/ChartOfAccounts";
+import ManualJournals from "./pages/accountant/ManualJournals";
+import Reconcile from "./pages/accountant/Reconcile";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -40,6 +45,26 @@ const App = () => (
           <Route path="/reports" element={<Reports />} />
           <Route path="/documents" element={<Documents />} />
           <Route path="/more" element={<More />} />
+          
+          {/* Accountant submenu routes */}
+          <Route path="/accountant/chart-of-accounts" element={<ChartOfAccounts />} />
+          <Route path="/accountant/manual-journals" element={<ManualJournals />} />
+          <Route path="/accountant/reconcile" element={<Reconcile />} />
+          
+          {/* Placeholder routes for other submenu items */}
+          {/* Sales submenu routes */}
+          <Route path="/sales/estimates" element={<NotFound />} />
+          <Route path="/sales/invoices" element={<NotFound />} />
+          <Route path="/sales/payments-received" element={<NotFound />} />
+          <Route path="/sales/sales-orders" element={<NotFound />} />
+          <Route path="/sales/delivery-challans" element={<NotFound />} />
+          
+          {/* Purchases submenu routes */}
+          <Route path="/purchases/bills" element={<NotFound />} />
+          <Route path="/purchases/vendor-credits" element={<NotFound />} />
+          <Route path="/purchases/payments-made" element={<NotFound />} />
+          <Route path="/purchases/purchase-orders" element={<NotFound />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

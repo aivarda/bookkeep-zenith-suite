@@ -68,6 +68,50 @@ export type Database = {
         }
         Relationships: []
       }
+      chart_of_accounts: {
+        Row: {
+          account_code: string | null
+          account_name: string
+          account_type: string
+          created_at: string
+          description: string | null
+          id: string
+          parent_account_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_code?: string | null
+          account_name: string
+          account_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          parent_account_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_code?: string | null
+          account_name?: string
+          account_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          parent_account_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chart_of_accounts_parent_account_id_fkey"
+            columns: ["parent_account_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: string | null
