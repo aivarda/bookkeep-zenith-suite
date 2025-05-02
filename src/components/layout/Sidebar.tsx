@@ -140,7 +140,7 @@ export const Sidebar = () => {
                   {isExpanded && (
                     <div className="pl-10 mt-1 space-y-1">
                       {item.submenu.map((subitem) => {
-                        const isSubActive = location.pathname === subitem.path;
+                        const isSubActive = location.pathname.startsWith(subitem.path);
                         const SubIconComponent = subitem.icon;
                         
                         return (
