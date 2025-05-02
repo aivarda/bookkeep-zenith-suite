@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Custom colors for our accounting app
+				'books-navy': '#1A2142',
+				'books-blue': '#0057FF',
+				'books-light-blue': '#E9EFFF',
+				'books-gray': '#F6F7F9',
+				'books-text': '#495057',
+				'books-green': '#00A389',
+				'books-red': '#FF5630',
+				'books-yellow': '#FFAB00',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
