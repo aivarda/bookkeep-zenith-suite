@@ -172,7 +172,7 @@ const ChartOfAccounts = () => {
             account_code: formData.account_code || null,
             description: formData.description || null,
             status: formData.status,
-            updated_at: new Date(),
+            updated_at: new Date().toISOString(),
           })
           .eq("id", editingAccount.id);
           

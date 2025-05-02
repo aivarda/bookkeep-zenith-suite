@@ -14,12 +14,9 @@ import {
   File, 
   MoreHorizontal,
   ChevronDown,
-  FileInvoice,
   CreditCard,
   ClipboardList,
-  TruckLoading,
   Receipt,
-  CreditCard as CardIcon,
   DollarSign,
   BookOpen,
   BarChart
@@ -50,10 +47,10 @@ const sidebarItems: SidebarItem[] = [
     icon: ShoppingCart,
     submenu: [
       { path: "/sales/estimates", label: "Estimates", icon: FileText },
-      { path: "/sales/invoices", label: "Invoices", icon: FileInvoice },
+      { path: "/sales/invoices", label: "Invoices", icon: FileText },
       { path: "/sales/payments-received", label: "Payments Received", icon: CreditCard },
       { path: "/sales/sales-orders", label: "Sales Orders", icon: ClipboardList },
-      { path: "/sales/delivery-challans", label: "Delivery Challans", icon: TruckLoading }
+      { path: "/sales/delivery-challans", label: "Delivery Challans", icon: Truck }
     ]
   },
   { 
@@ -62,7 +59,7 @@ const sidebarItems: SidebarItem[] = [
     icon: Package,
     submenu: [
       { path: "/purchases/bills", label: "Bills", icon: Receipt },
-      { path: "/purchases/vendor-credits", label: "Vendor Credits", icon: CardIcon },
+      { path: "/purchases/vendor-credits", label: "Vendor Credits", icon: CreditCard },
       { path: "/purchases/payments-made", label: "Payments Made", icon: DollarSign },
       { path: "/purchases/purchase-orders", label: "Purchase Orders", icon: ClipboardList }
     ]
