@@ -30,7 +30,6 @@ interface Item {
   id: string;
   name: string;
   type: string;
-  unit: string;
   rate: number;
   description: string | null;
   sku: string | null;
