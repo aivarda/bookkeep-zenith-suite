@@ -1,4 +1,3 @@
-
 import { MainLayout } from "@/components/layout/MainLayout";
 import { SummaryCards } from "@/components/dashboard/SummaryCards";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
@@ -8,36 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bell } from "lucide-react";
-
-const recentActivities = [
-  {
-    id: "1",
-    type: "Payment Received",
-    description: "From Scootsty Logistics Private Limited",
-    amount: "₹10,500.00",
-    date: "Today"
-  },
-  {
-    id: "2",
-    type: "Invoice Created",
-    description: "INV-00094 for R Srinivasan",
-    amount: "₹435.00",
-    date: "Yesterday"
-  },
-  {
-    id: "3",
-    type: "Bill Paid",
-    description: "To AXIS BANK LIMITED",
-    amount: "₹8,550.00",
-    date: "Apr 24, 2025"
-  },
-  {
-    id: "4",
-    type: "Customer Added",
-    description: "Jay Veer Computers",
-    date: "Apr 16, 2025"
-  }
-];
 
 const Home = () => {
   return (
@@ -85,7 +54,7 @@ const Home = () => {
               <CashFlowChart />
               
               <div>
-                <RecentActivity activities={recentActivities} />
+                <RecentActivity />
               </div>
             </div>
           </TabsContent>
