@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash, ArrowLeft } from "lucide-react";
+import { Plus, Trash, ArrowLeft, FileText, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -33,7 +33,8 @@ interface Item {
 
 interface InvoiceItem {
   id?: string;
-  item_id: string;
+  item_id?: string;
+  product_id?: string;
   description: string;
   quantity: number;
   rate: number;
