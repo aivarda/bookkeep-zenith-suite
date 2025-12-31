@@ -14,6 +14,12 @@ import EwayBills from "./pages/EwayBills";
 import GSTFiling from "./pages/GSTFiling";
 import Accountant from "./pages/Accountant";
 import Reports from "./pages/Reports";
+
+// Reports submenu routes
+import ProfitAndLoss from "./pages/reports/ProfitAndLoss";
+import BalanceSheet from "./pages/reports/BalanceSheet";
+import ReceivablesAging from "./pages/reports/ReceivablesAging";
+import PayablesAging from "./pages/reports/PayablesAging";
 import Documents from "./pages/Documents";
 import More from "./pages/More";
 import NotFound from "./pages/NotFound";
@@ -81,7 +87,12 @@ const App = () => (
           <Route path="/accountant/manual-journals" element={<ManualJournals />} />
           <Route path="/accountant/reconcile" element={<Reconcile />} />
           
+          {/* Reports routes */}
           <Route path="/reports" element={<Reports />} />
+          <Route path="/reports/profit-and-loss" element={<ProfitAndLoss />} />
+          <Route path="/reports/balance-sheet" element={<BalanceSheet />} />
+          <Route path="/reports/receivables-aging" element={<ReceivablesAging />} />
+          <Route path="/reports/payables-aging" element={<PayablesAging />} />
           <Route path="/documents" element={<Documents />} />
           <Route path="/more" element={<More />} />
           
