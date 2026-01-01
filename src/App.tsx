@@ -63,6 +63,7 @@ const App = () => (
           
           {/* Sales routes */}
           <Route path="/sales" element={<Sales />} />
+          <Route path="/sales/customers" element={<Clients />} />
           <Route path="/sales/invoices" element={<Invoices />} />
           <Route path="/sales/invoices/:id" element={<NewInvoice />} />
           <Route path="/sales/estimates" element={<Estimates />} />
@@ -72,6 +73,7 @@ const App = () => (
           
           {/* Purchases routes */}
           <Route path="/purchases" element={<Purchases />} />
+          <Route path="/purchases/vendors" element={<Vendors />} />
           <Route path="/purchases/bills" element={<Bills />} />
           <Route path="/purchases/vendor-credits" element={<VendorCredits />} />
           <Route path="/purchases/payments-made" element={<PaymentsMade />} />

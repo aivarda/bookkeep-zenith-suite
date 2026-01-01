@@ -7,7 +7,8 @@ import {
   ClipboardList, 
   Truck, 
   ShoppingCart,
-  ArrowRight
+  ArrowRight,
+  Users
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -19,6 +20,12 @@ interface SalesModule {
 }
 
 const salesModules: SalesModule[] = [
+  {
+    title: "Customers",
+    description: "Manage your customer database and contact information.",
+    icon: <Users className="h-6 w-6 text-books-blue" />,
+    path: "/sales/customers"
+  },
   {
     title: "Estimates",
     description: "Create estimates for your customers to approve before converting to invoices.",
@@ -80,26 +87,6 @@ const Sales = () => {
               </Card>
             </Link>
           ))}
-        </div>
-
-        <div className="mt-8">
-          <h2 className="text-lg font-medium mb-4">Customer Management</h2>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <FileText className="h-6 w-6 text-books-blue" />
-                  <div>
-                    <h3 className="font-medium">Customers</h3>
-                    <p className="text-sm text-muted-foreground">Manage your customer database</p>
-                  </div>
-                </div>
-                <Link to="/clients" className="text-books-blue flex items-center">
-                  View <ArrowRight className="h-4 w-4 ml-1" />
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </MainLayout>

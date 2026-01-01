@@ -46,6 +46,7 @@ const sidebarItems: SidebarItem[] = [
     label: "Sales", 
     icon: ShoppingCart,
     submenu: [
+      { path: "/sales/customers", label: "Customers", icon: User },
       { path: "/sales/estimates", label: "Estimates", icon: FileText },
       { path: "/sales/invoices", label: "Invoices", icon: FileText },
       { path: "/sales/payments-received", label: "Payments Received", icon: CreditCard },
@@ -58,6 +59,7 @@ const sidebarItems: SidebarItem[] = [
     label: "Purchases", 
     icon: Package,
     submenu: [
+      { path: "/purchases/vendors", label: "Vendors", icon: User },
       { path: "/purchases/bills", label: "Bills", icon: Receipt },
       { path: "/purchases/vendor-credits", label: "Vendor Credits", icon: CreditCard },
       { path: "/purchases/payments-made", label: "Payments Made", icon: DollarSign },

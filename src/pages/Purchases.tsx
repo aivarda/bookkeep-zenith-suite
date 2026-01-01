@@ -7,7 +7,8 @@ import {
   DollarSign,
   ClipboardList,
   Package,
-  ArrowRight
+  ArrowRight,
+  Users
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -19,6 +20,12 @@ interface PurchaseModule {
 }
 
 const purchaseModules: PurchaseModule[] = [
+  {
+    title: "Vendors",
+    description: "Manage your vendor database and contact information.",
+    icon: <Users className="h-6 w-6 text-books-blue" />,
+    path: "/purchases/vendors"
+  },
   {
     title: "Bills",
     description: "Create and manage bills from your vendors.",
@@ -74,26 +81,6 @@ const Purchases = () => {
               </Card>
             </Link>
           ))}
-        </div>
-
-        <div className="mt-8">
-          <h2 className="text-lg font-medium mb-4">Vendor Management</h2>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Receipt className="h-6 w-6 text-books-blue" />
-                  <div>
-                    <h3 className="font-medium">Vendors</h3>
-                    <p className="text-sm text-muted-foreground">Manage your vendor database</p>
-                  </div>
-                </div>
-                <Link to="/vendors" className="text-books-blue flex items-center">
-                  View <ArrowRight className="h-4 w-4 ml-1" />
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </MainLayout>
