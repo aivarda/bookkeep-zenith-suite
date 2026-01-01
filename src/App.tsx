@@ -4,6 +4,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+
+// Auth
+import Auth from "./pages/Auth";
+
+// Main pages
 import Home from "./pages/Home";
 import Items from "./pages/Items";
 import Banking from "./pages/Banking";
@@ -47,66 +54,79 @@ import PurchaseOrders from "./pages/purchases/PurchaseOrders";
 import Clients from "./pages/clients/Clients";
 import Vendors from "./pages/vendors/Vendors";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/items" element={<Items />} />
-          <Route path="/banking" element={<Banking />} />
-          
-          {/* Sales routes */}
-          <Route path="/sales" element={<Sales />} />
-          <Route path="/sales/customers" element={<Clients />} />
-          <Route path="/sales/invoices" element={<Invoices />} />
-          <Route path="/sales/invoices/:id" element={<NewInvoice />} />
-          <Route path="/sales/estimates" element={<Estimates />} />
-          <Route path="/sales/payments-received" element={<PaymentsReceived />} />
-          <Route path="/sales/sales-orders" element={<SalesOrders />} />
-          <Route path="/sales/delivery-challans" element={<DeliveryChallans />} />
-          
-          {/* Purchases routes */}
-          <Route path="/purchases" element={<Purchases />} />
-          <Route path="/purchases/vendors" element={<Vendors />} />
-          <Route path="/purchases/bills" element={<Bills />} />
-          <Route path="/purchases/vendor-credits" element={<VendorCredits />} />
-          <Route path="/purchases/payments-made" element={<PaymentsMade />} />
-          <Route path="/purchases/purchase-orders" element={<PurchaseOrders />} />
-          
-          <Route path="/time-tracking" element={<TimeTracking />} />
-          <Route path="/eway-bills" element={<EwayBills />} />
-          <Route path="/gst-filing" element={<GSTFiling />} />
-          
-          {/* Accountant routes */}
-          <Route path="/accountant" element={<Accountant />} />
-          <Route path="/accountant/chart-of-accounts" element={<ChartOfAccounts />} />
-          <Route path="/accountant/manual-journals" element={<ManualJournals />} />
-          <Route path="/accountant/reconcile" element={<Reconcile />} />
-          
-          {/* Reports routes */}
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/reports/profit-and-loss" element={<ProfitAndLoss />} />
-          <Route path="/reports/balance-sheet" element={<BalanceSheet />} />
-          <Route path="/reports/receivables-aging" element={<ReceivablesAging />} />
-          <Route path="/reports/payables-aging" element={<PayablesAging />} />
-          <Route path="/documents" element={<Documents />} />
-          <Route path="/more" element={<More />} />
-          
-          {/* Client and Vendor management */}
-          <Route path="/clients" element={<Clients />} />
-          <Route path="/vendors" element={<Vendors />} />
-          
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/auth" element={<Auth />} />
+            
+            {/* Protected routes */}
+            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/items" element={<ProtectedRoute><Items /></ProtectedRoute>} />
+            <Route path="/banking" element={<ProtectedRoute><Banking /></ProtectedRoute>} />
+            
+            {/* Sales routes */}
+            <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
+            <Route path="/sales/customers" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
+            <Route path="/sales/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
+            <Route path="/sales/invoices/:id" element={<ProtectedRoute><NewInvoice /></ProtectedRoute>} />
+            <Route path="/sales/estimates" element={<ProtectedRoute><Estimates /></ProtectedRoute>} />
+            <Route path="/sales/payments-received" element={<ProtectedRoute><PaymentsReceived /></ProtectedRoute>} />
+            <Route path="/sales/sales-orders" element={<ProtectedRoute><SalesOrders /></ProtectedRoute>} />
+            <Route path="/sales/delivery-challans" element={<ProtectedRoute><DeliveryChallans /></ProtectedRoute>} />
+            
+            {/* Purchases routes */}
+            <Route path="/purchases" element={<ProtectedRoute><Purchases /></ProtectedRoute>} />
+            <Route path="/purchases/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
+            <Route path="/purchases/bills" element={<ProtectedRoute><Bills /></ProtectedRoute>} />
+            <Route path="/purchases/vendor-credits" element={<ProtectedRoute><VendorCredits /></ProtectedRoute>} />
+            <Route path="/purchases/payments-made" element={<ProtectedRoute><PaymentsMade /></ProtectedRoute>} />
+            <Route path="/purchases/purchase-orders" element={<ProtectedRoute><PurchaseOrders /></ProtectedRoute>} />
+            
+            <Route path="/time-tracking" element={<ProtectedRoute><TimeTracking /></ProtectedRoute>} />
+            <Route path="/eway-bills" element={<ProtectedRoute><EwayBills /></ProtectedRoute>} />
+            <Route path="/gst-filing" element={<ProtectedRoute><GSTFiling /></ProtectedRoute>} />
+            
+            {/* Accountant routes */}
+            <Route path="/accountant" element={<ProtectedRoute><Accountant /></ProtectedRoute>} />
+            <Route path="/accountant/chart-of-accounts" element={<ProtectedRoute><ChartOfAccounts /></ProtectedRoute>} />
+            <Route path="/accountant/manual-journals" element={<ProtectedRoute><ManualJournals /></ProtectedRoute>} />
+            <Route path="/accountant/reconcile" element={<ProtectedRoute><Reconcile /></ProtectedRoute>} />
+            
+            {/* Reports routes */}
+            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+            <Route path="/reports/profit-and-loss" element={<ProtectedRoute><ProfitAndLoss /></ProtectedRoute>} />
+            <Route path="/reports/balance-sheet" element={<ProtectedRoute><BalanceSheet /></ProtectedRoute>} />
+            <Route path="/reports/receivables-aging" element={<ProtectedRoute><ReceivablesAging /></ProtectedRoute>} />
+            <Route path="/reports/payables-aging" element={<ProtectedRoute><PayablesAging /></ProtectedRoute>} />
+            <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
+            <Route path="/more" element={<ProtectedRoute><More /></ProtectedRoute>} />
+            
+            {/* Client and Vendor management */}
+            <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
+            <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
