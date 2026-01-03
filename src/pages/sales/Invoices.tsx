@@ -5,10 +5,12 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, DollarSign, FileText } from "lucide-react";
+import { Plus, DollarSign, FileText, Mail, Printer, Eye, Trash } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import SendInvoiceDialog from "@/components/invoice/SendInvoiceDialog";
 
 interface Invoice {
   id: string;
@@ -17,6 +19,7 @@ interface Invoice {
   due_date: string;
   client_id: string | null;
   client_name?: string;
+  client_email?: string;
   status: string;
   total_amount: number;
   created_at: string;
@@ -33,6 +36,10 @@ const Invoices = () => {
   const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
+  const [sendDialogOpen, setSendDialogOpen] = useState(false);
+  const [invoiceToSend, setInvoiceToSend] = useState<Invoice | null>(null);
   const [summary, setSummary] = useState({
     totalReceivables: 0,
     dueToday: 0,
@@ -63,7 +70,7 @@ const Invoices = () => {
           
         const { data: clients, error: clientsError } = await supabase
           .from("clients")
-          .select("id, name")
+          .select("id, name, email")
           .in("id", clientIds);
           
         if (clientsError) throw clientsError;
@@ -79,7 +86,8 @@ const Invoices = () => {
         // Combine invoice and client data
         const combinedData = invoicesData.map(invoice => ({
           ...invoice,
-          client_name: invoice.client_id ? (clientLookup[invoice.client_id]?.name || "Unknown Client") : "Unknown Client"
+          client_name: invoice.client_id ? (clientLookup[invoice.client_id]?.name || "Unknown Client") : "Unknown Client",
+          client_email: invoice.client_id ? (clientLookup[invoice.client_id]?.email || "") : ""
         }));
         
         setInvoices(combinedData);
@@ -135,19 +143,21 @@ const Invoices = () => {
     }
   };
 
-  const handleDeleteInvoice = async (id: string) => {
+  const handleDeleteInvoice = async () => {
+    if (!invoiceToDelete) return;
+    
     try {
       // First delete invoice items
       await supabase
         .from("invoice_items")
         .delete()
-        .eq("invoice_id", id);
+        .eq("invoice_id", invoiceToDelete.id);
         
       // Then delete the invoice
       const { error } = await supabase
         .from("invoices")
         .delete()
-        .eq("id", id);
+        .eq("id", invoiceToDelete.id);
         
       if (error) throw error;
       
@@ -156,7 +166,20 @@ const Invoices = () => {
     } catch (error) {
       console.error("Error deleting invoice:", error);
       toast.error("Could not delete the invoice");
+    } finally {
+      setDeleteDialogOpen(false);
+      setInvoiceToDelete(null);
     }
+  };
+
+  const openDeleteDialog = (invoice: Invoice) => {
+    setInvoiceToDelete(invoice);
+    setDeleteDialogOpen(true);
+  };
+
+  const openSendDialog = (invoice: Invoice) => {
+    setInvoiceToSend(invoice);
+    setSendDialogOpen(true);
   };
 
   const columns: ColumnDef<Invoice>[] = [
@@ -218,15 +241,35 @@ const Invoices = () => {
     },
     {
       id: "actions",
+      header: "Actions",
       cell: ({ row }) => {
+        const invoice = row.original;
         return (
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <Button 
               variant="ghost" 
-              size="icon" 
-              onClick={() => navigate(`/sales/invoices/${row.original.id}`)}
+              size="icon"
+              title="View Invoice"
+              onClick={() => navigate(`/sales/invoices/${invoice.id}`)}
             >
-              <FileText className="h-4 w-4" />
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              title="Send Email"
+              onClick={() => openSendDialog(invoice)}
+            >
+              <Mail className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              title="Delete"
+              onClick={() => openDeleteDialog(invoice)}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash className="h-4 w-4" />
             </Button>
           </div>
         );
@@ -312,6 +355,29 @@ const Invoices = () => {
           />
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Invoice"
+        description={`Are you sure you want to delete invoice ${invoiceToDelete?.invoice_number}? This action cannot be undone.`}
+        onConfirm={handleDeleteInvoice}
+        confirmLabel="Delete"
+        variant="destructive"
+      />
+
+      {/* Send Invoice Dialog */}
+      {invoiceToSend && (
+        <SendInvoiceDialog
+          open={sendDialogOpen}
+          onOpenChange={setSendDialogOpen}
+          invoiceId={invoiceToSend.id}
+          invoiceNumber={invoiceToSend.invoice_number}
+          clientEmail={invoiceToSend.client_email}
+          clientName={invoiceToSend.client_name}
+        />
+      )}
     </MainLayout>
   );
 };
