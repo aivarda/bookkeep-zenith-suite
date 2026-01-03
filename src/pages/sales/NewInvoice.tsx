@@ -45,7 +45,7 @@ interface InvoiceItem {
 const NewInvoice = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const isEditing = id !== "new";
+  const isEditing = id !== undefined && id !== "new";
   
   const [clients, setClients] = useState<Client[]>([]);
   const [items, setItems] = useState<Item[]>([]);

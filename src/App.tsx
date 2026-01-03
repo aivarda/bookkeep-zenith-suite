@@ -39,6 +39,7 @@ import Reconcile from "./pages/accountant/Reconcile";
 // Sales submenu routes
 import Invoices from "./pages/sales/Invoices";
 import NewInvoice from "./pages/sales/NewInvoice";
+import InvoiceView from "./pages/sales/InvoiceView";
 import Estimates from "./pages/sales/Estimates";
 import PaymentsReceived from "./pages/sales/PaymentsReceived";
 import SalesOrders from "./pages/sales/SalesOrders";
@@ -84,7 +85,9 @@ const App = () => (
             <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
             <Route path="/sales/customers" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
             <Route path="/sales/invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
-            <Route path="/sales/invoices/:id" element={<ProtectedRoute><NewInvoice /></ProtectedRoute>} />
+            <Route path="/sales/invoices/new" element={<ProtectedRoute><NewInvoice /></ProtectedRoute>} />
+            <Route path="/sales/invoices/:id" element={<ProtectedRoute><InvoiceView /></ProtectedRoute>} />
+            <Route path="/sales/invoices/:id/edit" element={<ProtectedRoute><NewInvoice /></ProtectedRoute>} />
             <Route path="/sales/estimates" element={<ProtectedRoute><Estimates /></ProtectedRoute>} />
             <Route path="/sales/payments-received" element={<ProtectedRoute><PaymentsReceived /></ProtectedRoute>} />
             <Route path="/sales/sales-orders" element={<ProtectedRoute><SalesOrders /></ProtectedRoute>} />
