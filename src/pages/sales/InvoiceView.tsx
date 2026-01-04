@@ -36,6 +36,14 @@ interface Client {
   address: string | null;
   gstin: string | null;
 }
+interface CompanySettings {
+  company_name: string;
+  address: string | null;
+  gstin: string | null;
+  email: string | null;
+  phone: string | null;
+  logo_url: string | null;
+}
 
 const InvoiceView = () => {
   const navigate = useNavigate();
@@ -45,6 +53,7 @@ const InvoiceView = () => {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [client, setClient] = useState<Client | null>(null);
   const [items, setItems] = useState<InvoiceItem[]>([]);
+  const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
 
@@ -88,6 +97,17 @@ const InvoiceView = () => {
 
       if (!itemsError) {
         setItems(itemsData || []);
+      }
+
+      // Fetch company settings
+      const { data: companyData } = await supabase
+        .from("company_settings")
+        .select("*")
+        .limit(1)
+        .single();
+
+      if (companyData) {
+        setCompanySettings(companyData);
       }
     } catch (error) {
       console.error("Error fetching invoice:", error);
@@ -213,6 +233,12 @@ const InvoiceView = () => {
                 gstin: client.gstin || undefined,
               } : null}
               items={items}
+              companyName={companySettings?.company_name}
+              companyAddress={companySettings?.address || undefined}
+              companyPhone={companySettings?.phone || undefined}
+              companyEmail={companySettings?.email || undefined}
+              companyGstin={companySettings?.gstin || undefined}
+              companyLogoUrl={companySettings?.logo_url || undefined}
             />
           </CardContent>
         </Card>

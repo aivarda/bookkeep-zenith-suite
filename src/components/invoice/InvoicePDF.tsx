@@ -30,10 +30,11 @@ interface InvoicePDFProps {
   companyPhone?: string;
   companyEmail?: string;
   companyGstin?: string;
+  companyLogoUrl?: string;
 }
 
 const InvoicePDF = forwardRef<HTMLDivElement, InvoicePDFProps>(
-  ({ invoice, client, items, companyName = "Your Company", companyAddress, companyPhone, companyEmail, companyGstin }, ref) => {
+  ({ invoice, client, items, companyName = "Your Company", companyAddress, companyPhone, companyEmail, companyGstin, companyLogoUrl }, ref) => {
     const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
     const totalTax = items.reduce((sum, item) => sum + ((item.quantity * item.rate) * (item.tax_percent / 100)), 0);
 
@@ -52,12 +53,24 @@ const InvoicePDF = forwardRef<HTMLDivElement, InvoicePDFProps>(
       >
         {/* Header */}
         <div className="flex justify-between items-start mb-8 border-b pb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">{companyName}</h1>
-            {companyAddress && <p className="text-gray-600 mt-1">{companyAddress}</p>}
-            {companyPhone && <p className="text-gray-600">{companyPhone}</p>}
-            {companyEmail && <p className="text-gray-600">{companyEmail}</p>}
-            {companyGstin && <p className="text-gray-600">GSTIN: {companyGstin}</p>}
+          <div className="flex items-start gap-4">
+            {companyLogoUrl && (
+              <img 
+                src={companyLogoUrl} 
+                alt="Company Logo" 
+                className="h-16 w-16 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">{companyName}</h1>
+              {companyAddress && <p className="text-gray-600 mt-1">{companyAddress}</p>}
+              {companyPhone && <p className="text-gray-600">{companyPhone}</p>}
+              {companyEmail && <p className="text-gray-600">{companyEmail}</p>}
+              {companyGstin && <p className="text-gray-600">GSTIN: {companyGstin}</p>}
+            </div>
           </div>
           <div className="text-right">
             <h2 className="text-2xl font-bold text-blue-600">INVOICE</h2>

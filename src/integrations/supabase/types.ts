@@ -201,6 +201,42 @@ export type Database = {
         }
         Relationships: []
       }
+      company_settings: {
+        Row: {
+          address: string | null
+          company_name: string
+          created_at: string
+          email: string | null
+          gstin: string | null
+          id: string
+          logo_url: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          company_name?: string
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          company_name?: string
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       delivery_challans: {
         Row: {
           challan_number: string

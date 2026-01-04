@@ -19,7 +19,9 @@ import {
   Receipt,
   DollarSign,
   BookOpen,
-  BarChart
+  BarChart,
+  Settings,
+  Building2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -81,6 +83,14 @@ const sidebarItems: SidebarItem[] = [
   },
   { path: "/reports", label: "Reports", icon: BarChart2 },
   { path: "/documents", label: "Documents", icon: File },
+  { 
+    path: "/settings", 
+    label: "Settings", 
+    icon: Settings,
+    submenu: [
+      { path: "/settings/company", label: "Company", icon: Building2 }
+    ]
+  },
   { path: "/more", label: "More Features", icon: MoreHorizontal },
 ];
 
