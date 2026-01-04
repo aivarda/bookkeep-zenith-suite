@@ -55,6 +55,9 @@ import PurchaseOrders from "./pages/purchases/PurchaseOrders";
 import Clients from "./pages/clients/Clients";
 import Vendors from "./pages/vendors/Vendors";
 
+// Settings
+import CompanySettings from "./pages/settings/CompanySettings";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -119,6 +122,9 @@ const App = () => (
             <Route path="/reports/payables-aging" element={<ProtectedRoute><PayablesAging /></ProtectedRoute>} />
             <Route path="/documents" element={<ProtectedRoute><Documents /></ProtectedRoute>} />
             <Route path="/more" element={<ProtectedRoute><More /></ProtectedRoute>} />
+            
+            {/* Settings routes */}
+            <Route path="/settings/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
             
             {/* Client and Vendor management */}
             <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />

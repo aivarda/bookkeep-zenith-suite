@@ -88,9 +88,22 @@ export const journalEntrySchema = z.object({
   (data) => (data.debit_amount > 0 && data.credit_amount === 0) || (data.credit_amount > 0 && data.debit_amount === 0),
   { message: "Entry must have either debit or credit, not both" }
 );
-
 export type JournalEntryFormData = z.infer<typeof journalEntrySchema>;
 
+// Company Settings validation
+export const companySettingsSchema = z.object({
+  company_name: z.string().trim().min(1, "Company name is required").max(100, "Company name must be less than 100 characters"),
+  address: z.string().trim().max(500, "Address must be less than 500 characters").optional().or(z.literal("")),
+  gstin: z.string().trim()
+    .regex(/^$|^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Invalid GSTIN format")
+    .optional()
+    .or(z.literal("")),
+  email: z.string().trim().email("Invalid email address").max(255).optional().or(z.literal("")),
+  phone: z.string().trim().max(20, "Phone must be less than 20 characters").optional().or(z.literal("")),
+  logo_url: z.string().trim().url("Invalid URL").max(500).optional().or(z.literal("")),
+});
+
+export type CompanySettingsFormData = z.infer<typeof companySettingsSchema>;
 // Helper function to validate form data
 export const validateFormData = <T>(
   schema: z.ZodSchema<T>,
