@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash, X } from "lucide-react";
+import { Plus, Edit, Trash, X, Upload } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Dialog,
@@ -25,6 +25,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ImportDialog } from "@/components/import/ImportDialog";
+import { ZOHO_FIELD_MAPPINGS } from "@/lib/import-utils";
 
 interface Item {
   id: string;
@@ -43,6 +45,7 @@ const Items = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [inventoryData, setInventoryData] = useState<Record<string, any>>({});
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -312,13 +315,65 @@ const Items = () => {
     },
   ];
 
+  const handleImport = async (data: Record<string, unknown>[]) => {
+    let success = 0;
+    let failed = 0;
+
+    for (const row of data) {
+      try {
+        const { data: newItem, error } = await supabase.from("items").insert({
+          name: String(row.name || "").trim(),
+          sku: row.sku ? String(row.sku).trim() : null,
+          rate: typeof row.rate === "number" ? row.rate : parseFloat(String(row.rate)) || 0,
+          description: row.description ? String(row.description).trim() : null,
+          type: row.type === "service" ? "Service" : "Goods",
+          taxable: row.taxable === true || row.taxable === "true" || row.taxable === "Yes",
+        }).select().single();
+
+        if (error) {
+          failed++;
+        } else {
+          success++;
+          // Create inventory record for goods
+          if (newItem && row.type !== "service") {
+            await supabase.from("inventory").insert({
+              item_id: newItem.id,
+              unit: null,
+              opening_stock: 0,
+              current_stock: 0,
+            });
+          }
+        }
+      } catch {
+        failed++;
+      }
+    }
+
+    fetchItems();
+    return { success, failed };
+  };
+
+  const importTargetFields = [
+    { field: "name", label: "Item Name", required: true },
+    { field: "sku", label: "SKU", required: false },
+    { field: "rate", label: "Rate", required: false },
+    { field: "description", label: "Description", required: false },
+    { field: "type", label: "Type (goods/service)", required: false },
+    { field: "taxable", label: "Taxable", required: false },
+  ];
+
   const topbarButtons = (
-    <Button className="bg-books-blue hover:bg-blue-700" onClick={() => {
-      resetForm();
-      setOpenDialog(true);
-    }}>
-      <Plus className="h-4 w-4 mr-1" /> Add Item
-    </Button>
+    <div className="flex gap-2">
+      <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+        <Upload className="h-4 w-4 mr-1" /> Import
+      </Button>
+      <Button className="bg-books-blue hover:bg-blue-700" onClick={() => {
+        resetForm();
+        setOpenDialog(true);
+      }}>
+        <Plus className="h-4 w-4 mr-1" /> Add Item
+      </Button>
+    </div>
   );
 
   return (
@@ -457,6 +512,16 @@ const Items = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ImportDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        title="Import Items"
+        description="Import items from a CSV or Excel file exported from Zoho Books or any other software."
+        targetFields={importTargetFields}
+        zohoFieldConfig={ZOHO_FIELD_MAPPINGS.items}
+        onImport={handleImport}
+      />
     </MainLayout>
   );
 };

@@ -57,6 +57,7 @@ import Vendors from "./pages/vendors/Vendors";
 
 // Settings
 import CompanySettings from "./pages/settings/CompanySettings";
+import DataMigration from "./pages/settings/DataMigration";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -125,6 +126,7 @@ const App = () => (
             
             {/* Settings routes */}
             <Route path="/settings/company" element={<ProtectedRoute><CompanySettings /></ProtectedRoute>} />
+            <Route path="/settings/migration" element={<ProtectedRoute><DataMigration /></ProtectedRoute>} />
             
             {/* Client and Vendor management */}
             <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
