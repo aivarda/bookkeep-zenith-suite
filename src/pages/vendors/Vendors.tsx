@@ -4,7 +4,7 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash } from "lucide-react";
+import { Plus, Edit, Trash, Upload } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Dialog,
@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ImportDialog } from "@/components/import/ImportDialog";
+import { ZOHO_FIELD_MAPPINGS } from "@/lib/import-utils";
 
 interface Vendor {
   id: string;
@@ -34,6 +36,7 @@ const Vendors = () => {
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -220,13 +223,54 @@ const Vendors = () => {
     },
   ];
 
+  const handleImport = async (data: Record<string, unknown>[]) => {
+    let success = 0;
+    let failed = 0;
+
+    for (const row of data) {
+      try {
+        const { error } = await supabase.from("vendors").insert({
+          name: String(row.name || "").trim(),
+          email: row.email ? String(row.email).trim() : null,
+          phone: row.phone ? String(row.phone).trim() : null,
+          address: row.address ? String(row.address).trim() : null,
+          gstin: row.gstin ? String(row.gstin).trim().toUpperCase() : null,
+        });
+
+        if (error) {
+          failed++;
+        } else {
+          success++;
+        }
+      } catch {
+        failed++;
+      }
+    }
+
+    fetchVendors();
+    return { success, failed };
+  };
+
+  const importTargetFields = [
+    { field: "name", label: "Vendor Name", required: true },
+    { field: "email", label: "Email", required: false },
+    { field: "phone", label: "Phone", required: false },
+    { field: "address", label: "Address", required: false },
+    { field: "gstin", label: "GSTIN", required: false },
+  ];
+
   const topbarButtons = (
-    <Button className="bg-books-blue hover:bg-blue-700" onClick={() => {
-      resetForm();
-      setOpenDialog(true);
-    }}>
-      <Plus className="h-4 w-4 mr-1" /> Add Vendor
-    </Button>
+    <div className="flex gap-2">
+      <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+        <Upload className="h-4 w-4 mr-1" /> Import
+      </Button>
+      <Button className="bg-books-blue hover:bg-blue-700" onClick={() => {
+        resetForm();
+        setOpenDialog(true);
+      }}>
+        <Plus className="h-4 w-4 mr-1" /> Add Vendor
+      </Button>
+    </div>
   );
 
   return (
@@ -326,6 +370,16 @@ const Vendors = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ImportDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        title="Import Vendors"
+        description="Import vendors from a CSV or Excel file exported from Zoho Books or any other software."
+        targetFields={importTargetFields}
+        zohoFieldConfig={ZOHO_FIELD_MAPPINGS.vendors}
+        onImport={handleImport}
+      />
     </MainLayout>
   );
 };

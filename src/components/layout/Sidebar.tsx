@@ -21,7 +21,8 @@ import {
   BookOpen,
   BarChart,
   Settings,
-  Building2
+  Building2,
+  Upload
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -88,7 +89,8 @@ const sidebarItems: SidebarItem[] = [
     label: "Settings", 
     icon: Settings,
     submenu: [
-      { path: "/settings/company", label: "Company", icon: Building2 }
+      { path: "/settings/company", label: "Company", icon: Building2 },
+      { path: "/settings/migration", label: "Data Migration", icon: Upload }
     ]
   },
   { path: "/more", label: "More Features", icon: MoreHorizontal },
