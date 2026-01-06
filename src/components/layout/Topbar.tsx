@@ -1,4 +1,5 @@
-import { Search, RefreshCw, Bell, Settings, LogOut, User, Plus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, RefreshCw, Bell, Settings, LogOut, User, Plus, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,13 +11,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface TopbarProps {
   title?: string;
   showSearch?: boolean;
   searchPlaceholder?: string;
   buttons?: React.ReactNode;
+}
+
+interface CompanySettings {
+  company_name: string;
+  logo_url: string | null;
 }
 
 export const Topbar = ({
@@ -26,14 +34,53 @@ export const Topbar = ({
   buttons,
 }: TopbarProps) => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null);
   
   const userInitials = user?.email 
     ? user.email.substring(0, 2).toUpperCase() 
     : "U";
 
+  useEffect(() => {
+    const fetchCompanySettings = async () => {
+      const { data } = await supabase
+        .from("company_settings")
+        .select("company_name, logo_url")
+        .limit(1)
+        .single();
+      
+      if (data) {
+        setCompanySettings(data);
+      }
+    };
+
+    fetchCompanySettings();
+  }, []);
+
   return (
     <div className="topbar">
-      {title && <h1 className="text-xl font-semibold">{title}</h1>}
+      {/* Company Logo and Name */}
+      <div className="flex items-center gap-3">
+        {companySettings?.logo_url ? (
+          <img 
+            src={companySettings.logo_url} 
+            alt="Company Logo" 
+            className="h-8 w-8 object-contain rounded"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        ) : (
+          <div className="h-8 w-8 bg-muted rounded flex items-center justify-center">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </div>
+        )}
+        <span className="font-semibold text-foreground hidden sm:block">
+          {companySettings?.company_name || "My Company"}
+        </span>
+      </div>
+
+      {title && <h1 className="text-xl font-semibold ml-4">{title}</h1>}
       
       <div className="flex-1 flex items-center mx-6">
         {showSearch && (
@@ -55,7 +102,7 @@ export const Topbar = ({
         <Button variant="ghost" size="icon">
           <Bell className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/settings/company")}>
           <Settings className="h-5 w-5" />
         </Button>
         
@@ -63,7 +110,7 @@ export const Topbar = ({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-[#1a4986] text-white text-xs">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
@@ -83,7 +130,7 @@ export const Topbar = ({
               <User className="mr-2 h-4 w-4" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/settings/company")}>
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </DropdownMenuItem>
@@ -98,7 +145,7 @@ export const Topbar = ({
           </DropdownMenuContent>
         </DropdownMenu>
         
-        <Button size="sm" className="bg-[#1a4986] hover:bg-[#0f2d54]">
+        <Button size="sm" className="bg-primary hover:bg-primary/90">
           <Plus className="h-4 w-4 mr-1" /> New
         </Button>
       </div>
