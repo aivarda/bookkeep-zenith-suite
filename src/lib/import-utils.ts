@@ -165,6 +165,59 @@ export const ZOHO_FIELD_MAPPINGS: Record<string, ZohoFieldConfig[]> = {
     { zohoFields: ['Product Type', 'Type', 'Item Type'], targetField: 'type', required: false, transform: (v: unknown) => String(v).toLowerCase() === 'service' ? 'service' : 'goods' },
     { zohoFields: ['Is Taxable', 'Taxable', 'Tax'], targetField: 'taxable', required: false, transform: (v: unknown) => String(v).toLowerCase() === 'yes' || String(v).toLowerCase() === 'true' || v === true },
   ],
+  invoices: [
+    { zohoFields: ['Invoice Number', 'Invoice#', 'Invoice No', 'Invoice'], targetField: 'invoice_number', required: true },
+    { zohoFields: ['Customer Name', 'Client Name', 'Customer', 'Client'], targetField: 'customer_name', required: true },
+    { zohoFields: ['Invoice Date', 'Date', 'Issue Date', 'Created Date'], targetField: 'date_issued', required: false, transform: (v: unknown) => {
+      if (!v) return new Date().toISOString().split('T')[0];
+      const dateStr = String(v);
+      // Handle various date formats
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) return date.toISOString().split('T')[0];
+      // Handle DD/MM/YYYY format
+      const parts = dateStr.split(/[\/\-]/);
+      if (parts.length === 3) {
+        const [d, m, y] = parts;
+        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      }
+      return new Date().toISOString().split('T')[0];
+    }},
+    { zohoFields: ['Due Date', 'Payment Due Date'], targetField: 'due_date', required: false, transform: (v: unknown) => {
+      if (!v) {
+        const date = new Date();
+        date.setDate(date.getDate() + 30);
+        return date.toISOString().split('T')[0];
+      }
+      const dateStr = String(v);
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) return date.toISOString().split('T')[0];
+      const parts = dateStr.split(/[\/\-]/);
+      if (parts.length === 3) {
+        const [d, m, y] = parts;
+        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      }
+      const defaultDate = new Date();
+      defaultDate.setDate(defaultDate.getDate() + 30);
+      return defaultDate.toISOString().split('T')[0];
+    }},
+    { zohoFields: ['Total', 'Amount', 'Invoice Total', 'Grand Total', 'Total Amount'], targetField: 'total_amount', required: false, transform: (v: unknown) => parseFloat(String(v).replace(/[₹,]/g, '')) || 0 },
+    { zohoFields: ['Status', 'Invoice Status', 'Payment Status'], targetField: 'status', required: false, transform: (v: unknown) => {
+      const status = String(v).toUpperCase();
+      if (status.includes('PAID')) return 'PAID';
+      if (status.includes('OVERDUE')) return 'OVERDUE';
+      if (status.includes('DRAFT')) return 'DRAFT';
+      return 'PENDING';
+    }},
+    { zohoFields: ['Notes', 'Customer Notes', 'Invoice Notes', 'Memo'], targetField: 'notes', required: false },
+  ],
+  invoice_items: [
+    { zohoFields: ['Invoice Number', 'Invoice#', 'Invoice No'], targetField: 'invoice_number', required: true },
+    { zohoFields: ['Item Name', 'Product Name', 'Item', 'Description', 'Item Description'], targetField: 'description', required: true },
+    { zohoFields: ['Quantity', 'Qty'], targetField: 'quantity', required: false, transform: (v: unknown) => parseFloat(String(v)) || 1 },
+    { zohoFields: ['Rate', 'Price', 'Unit Price'], targetField: 'rate', required: false, transform: (v: unknown) => parseFloat(String(v).replace(/[₹,]/g, '')) || 0 },
+    { zohoFields: ['Tax', 'Tax %', 'Tax Rate', 'Tax Percent', 'GST %'], targetField: 'tax_percent', required: false, transform: (v: unknown) => parseFloat(String(v).replace('%', '')) || 0 },
+    { zohoFields: ['Amount', 'Total', 'Line Total', 'Item Total'], targetField: 'total', required: false, transform: (v: unknown) => parseFloat(String(v).replace(/[₹,]/g, '')) || 0 },
+  ],
 };
 
 // Transform data using field mappings

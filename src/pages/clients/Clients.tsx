@@ -3,7 +3,8 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash, Users, Upload } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Plus, Edit, Trash, Users, Upload, Download } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Dialog,
@@ -21,7 +22,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { clientSchema, validateFormData, type ClientFormData } from "@/lib/validations";
 import { ImportDialog } from "@/components/import/ImportDialog";
-import { ZOHO_FIELD_MAPPINGS } from "@/lib/import-utils";
+import { ZOHO_FIELD_MAPPINGS, exportToCSV, exportToExcel } from "@/lib/import-utils";
 
 interface Client {
   id: string;
@@ -294,8 +295,35 @@ const Clients = () => {
     { field: "gstin", label: "GSTIN", required: false },
   ];
 
+  const handleExport = (format: 'csv' | 'excel') => {
+    const exportData = clients.map(c => ({
+      Name: c.name,
+      Email: c.email || '',
+      Phone: c.phone || '',
+      Address: c.address || '',
+      GSTIN: c.gstin || '',
+    }));
+    if (format === 'csv') {
+      exportToCSV(exportData, 'customers');
+    } else {
+      exportToExcel(exportData, 'customers');
+    }
+    toast.success(`Exported ${clients.length} customers`);
+  };
+
   const topbarButtons = (
     <div className="flex gap-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">
+            <Download className="h-4 w-4 mr-1" /> Export
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => handleExport('csv')}>Export as CSV</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleExport('excel')}>Export as Excel</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
         <Upload className="h-4 w-4 mr-1" /> Import
       </Button>

@@ -4,7 +4,8 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash, Upload } from "lucide-react";
+import { Plus, Edit, Trash, Upload, Download } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   Dialog,
@@ -19,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ImportDialog } from "@/components/import/ImportDialog";
-import { ZOHO_FIELD_MAPPINGS } from "@/lib/import-utils";
+import { ZOHO_FIELD_MAPPINGS, exportToCSV, exportToExcel } from "@/lib/import-utils";
 
 interface Vendor {
   id: string;
@@ -259,8 +260,35 @@ const Vendors = () => {
     { field: "gstin", label: "GSTIN", required: false },
   ];
 
+  const handleExport = (format: 'csv' | 'excel') => {
+    const exportData = vendors.map(v => ({
+      Name: v.name,
+      Email: v.email || '',
+      Phone: v.phone || '',
+      Address: v.address || '',
+      GSTIN: v.gstin || '',
+    }));
+    if (format === 'csv') {
+      exportToCSV(exportData, 'vendors');
+    } else {
+      exportToExcel(exportData, 'vendors');
+    }
+    toast.success(`Exported ${vendors.length} vendors`);
+  };
+
   const topbarButtons = (
     <div className="flex gap-2">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">
+            <Download className="h-4 w-4 mr-1" /> Export
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => handleExport('csv')}>Export as CSV</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleExport('excel')}>Export as Excel</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
         <Upload className="h-4 w-4 mr-1" /> Import
       </Button>
