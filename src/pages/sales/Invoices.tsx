@@ -1,16 +1,17 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, DollarSign, FileText, Mail, Printer, Eye, Trash } from "lucide-react";
+import { Plus, DollarSign, Mail, Eye, Trash, Upload } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import SendInvoiceDialog from "@/components/invoice/SendInvoiceDialog";
+import { ImportDialog } from "@/components/import/ImportDialog";
+import { ZOHO_FIELD_MAPPINGS } from "@/lib/import-utils";
 
 interface Invoice {
   id: string;
@@ -40,6 +41,7 @@ const Invoices = () => {
   const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
   const [sendDialogOpen, setSendDialogOpen] = useState(false);
   const [invoiceToSend, setInvoiceToSend] = useState<Invoice | null>(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [summary, setSummary] = useState({
     totalReceivables: 0,
     dueToday: 0,
@@ -277,13 +279,74 @@ const Invoices = () => {
     },
   ];
 
+  const handleImport = async (data: Record<string, unknown>[]) => {
+    let success = 0;
+    let failed = 0;
+
+    // Fetch all clients to match by name
+    const { data: clients } = await supabase.from("clients").select("id, name");
+    const clientLookup: Record<string, string> = {};
+    clients?.forEach(c => {
+      clientLookup[c.name.toLowerCase().trim()] = c.id;
+    });
+
+    for (const row of data) {
+      try {
+        const customerName = String(row.customer_name || "").toLowerCase().trim();
+        const clientId = clientLookup[customerName] || null;
+
+        if (!clientId) {
+          console.warn(`Client not found: ${row.customer_name}`);
+        }
+
+        const { error } = await supabase.from("invoices").insert({
+          invoice_number: String(row.invoice_number || "").trim(),
+          client_id: clientId,
+          date_issued: row.date_issued ? String(row.date_issued) : new Date().toISOString().split('T')[0],
+          due_date: row.due_date ? String(row.due_date) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          total_amount: typeof row.total_amount === 'number' ? row.total_amount : parseFloat(String(row.total_amount)) || 0,
+          status: String(row.status || "PENDING").toUpperCase(),
+          notes: row.notes ? String(row.notes) : null,
+        });
+
+        if (error) {
+          console.error("Import error:", error);
+          failed++;
+        } else {
+          success++;
+        }
+      } catch (err) {
+        console.error("Import error:", err);
+        failed++;
+      }
+    }
+
+    fetchInvoices();
+    return { success, failed };
+  };
+
+  const importTargetFields = [
+    { field: "invoice_number", label: "Invoice Number", required: true },
+    { field: "customer_name", label: "Customer Name", required: true },
+    { field: "date_issued", label: "Invoice Date", required: false },
+    { field: "due_date", label: "Due Date", required: false },
+    { field: "total_amount", label: "Total Amount", required: false },
+    { field: "status", label: "Status", required: false },
+    { field: "notes", label: "Notes", required: false },
+  ];
+
   const topbarButtons = (
-    <Button 
-      className="bg-books-blue hover:bg-blue-700"
-      onClick={() => navigate("/sales/invoices/new")}
-    >
-      <Plus className="h-4 w-4 mr-1" /> New
-    </Button>
+    <div className="flex gap-2">
+      <Button variant="outline" onClick={() => setImportDialogOpen(true)}>
+        <Upload className="h-4 w-4 mr-1" /> Import
+      </Button>
+      <Button 
+        className="bg-books-blue hover:bg-blue-700"
+        onClick={() => navigate("/sales/invoices/new")}
+      >
+        <Plus className="h-4 w-4 mr-1" /> New
+      </Button>
+    </div>
   );
 
   return (
@@ -378,6 +441,17 @@ const Invoices = () => {
           clientName={invoiceToSend.client_name}
         />
       )}
+
+      {/* Import Dialog */}
+      <ImportDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
+        title="Import Invoices"
+        description="Import invoices from a CSV or Excel file. Make sure customers exist before importing. Customer names must match exactly."
+        targetFields={importTargetFields}
+        zohoFieldConfig={ZOHO_FIELD_MAPPINGS.invoices}
+        onImport={handleImport}
+      />
     </MainLayout>
   );
 };
