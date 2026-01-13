@@ -27,6 +27,11 @@ interface CompanySettings {
   logo_url: string | null;
 }
 
+interface UserProfile {
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
 export const Topbar = ({
   title,
   showSearch = true,
@@ -36,10 +41,13 @@ export const Topbar = ({
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   
-  const userInitials = user?.email 
-    ? user.email.substring(0, 2).toUpperCase() 
-    : "U";
+  const userInitials = userProfile?.display_name
+    ? userProfile.display_name.substring(0, 2).toUpperCase()
+    : user?.email 
+      ? user.email.substring(0, 2).toUpperCase() 
+      : "U";
 
   useEffect(() => {
     const fetchCompanySettings = async () => {
@@ -54,8 +62,23 @@ export const Topbar = ({
       }
     };
 
+    const fetchUserProfile = async () => {
+      if (!user?.id) return;
+      
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url")
+        .eq("user_id", user.id)
+        .single();
+      
+      if (data) {
+        setUserProfile(data);
+      }
+    };
+
     fetchCompanySettings();
-  }, []);
+    fetchUserProfile();
+  }, [user?.id]);
 
   return (
     <div className="topbar">
@@ -110,6 +133,9 @@ export const Topbar = ({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
               <Avatar className="h-8 w-8">
+                {userProfile?.avatar_url && (
+                  <AvatarImage src={userProfile.avatar_url} alt="User avatar" />
+                )}
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                   {userInitials}
                 </AvatarFallback>
@@ -119,14 +145,16 @@ export const Topbar = ({
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">My Account</p>
+                <p className="text-sm font-medium">
+                  {userProfile?.display_name || "My Account"}
+                </p>
                 <p className="text-xs text-muted-foreground truncate">
                   {user?.email}
                 </p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/settings/profile")}>
               <User className="mr-2 h-4 w-4" />
               Profile
             </DropdownMenuItem>
